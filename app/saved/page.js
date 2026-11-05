@@ -1,33 +1,67 @@
 
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import opportunities from "../../data/opportunities";
 import { useOpportunities } from "../../context/OpportunityContext";
 
 export default function SavedPage() {
+  const [isCheckingLogin, setIsCheckingLogin] = useState(true);
+  const router = useRouter();
+
   const { savedOpportunities, toggleSave } = useOpportunities();
+
+  useEffect(() => {
+    const user = sessionStorage.getItem("opportunityHubUser");
+
+    if (!user) {
+      router.replace("/login");
+    } else {
+      setIsCheckingLogin(false);
+    }
+  }, [router]);
+
+  const handleLogout = () => {
+    sessionStorage.removeItem("opportunityHubUser");
+    router.replace("/login");
+  };
 
   const savedItems = opportunities.filter((item) =>
     savedOpportunities.includes(item.id)
   );
 
+  if (isCheckingLogin) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-50">
+        <p className="text-lg font-semibold text-indigo-600">
+          Loading OpportunityHub...
+        </p>
+      </div>
+    );
+  }
+
   return (
     <main className="min-h-screen bg-slate-50 text-slate-800">
 
       {/* Navbar */}
-      <nav className="flex items-center justify-between bg-white px-8 py-5 shadow-sm">
-        <h1 className="text-2xl font-bold text-indigo-600">
+      <nav className="flex flex-wrap items-center justify-between gap-4 bg-white px-8 py-5 shadow-sm">
+        <Link href="/" className="text-2xl font-bold text-indigo-600">
           OpportunityHub.
-        </h1>
+        </Link>
 
-        <div className="hidden gap-8 md:flex">
+        <div className="flex flex-wrap items-center gap-5">
           <Link href="/" className="text-slate-600 hover:text-indigo-600">
             Home
           </Link>
 
           <Link href="/explore" className="text-slate-600 hover:text-indigo-600">
             Explore
+          </Link>
+
+          <Link href="/dashboard" className="text-slate-600 hover:text-indigo-600">
+            Dashboard
           </Link>
 
           <Link href="/saved" className="font-medium text-indigo-600">
@@ -37,6 +71,17 @@ export default function SavedPage() {
           <Link href="/applications" className="text-slate-600 hover:text-indigo-600">
             My Applications
           </Link>
+
+          <Link href="/profile" className="text-slate-600 hover:text-indigo-600">
+            My Profile
+          </Link>
+
+          <button
+            onClick={handleLogout}
+            className="rounded-lg border border-red-500 px-4 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-50"
+          >
+            Logout
+          </button>
         </div>
       </nav>
 
@@ -113,9 +158,12 @@ export default function SavedPage() {
                   <span>Deadline: {item.deadline}</span>
                 </div>
 
-                <button className="mt-6 w-full rounded-lg border border-indigo-600 py-2 font-semibold text-indigo-600 hover:bg-indigo-600 hover:text-white">
+                <Link
+                  href={`/opportunity/${item.id}`}
+                  className="mt-6 block w-full rounded-lg border border-indigo-600 py-2 text-center font-semibold text-indigo-600 hover:bg-indigo-600 hover:text-white"
+                >
                   View Details
-                </button>
+                </Link>
               </div>
             ))}
           </div>

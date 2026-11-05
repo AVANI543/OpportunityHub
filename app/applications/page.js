@@ -1,16 +1,38 @@
 
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import opportunities from "../../data/opportunities";
 import { useOpportunities } from "../../context/OpportunityContext";
 
 export default function Applications() {
+  const [isCheckingLogin, setIsCheckingLogin] = useState(true);
+  const router = useRouter();
+
   const {
     applications,
     updateApplication,
     removeApplication,
   } = useOpportunities();
+
+  // Check login before allowing access
+  useEffect(() => {
+    const user = sessionStorage.getItem("opportunityHubUser");
+
+    if (!user) {
+      router.replace("/login");
+    } else {
+      setIsCheckingLogin(false);
+    }
+  }, [router]);
+
+  // Logout
+  const handleLogout = () => {
+    sessionStorage.removeItem("opportunityHubUser");
+    router.replace("/login");
+  };
 
   // Get opportunity details for tracked applications
   const trackedApplications = applications
@@ -47,22 +69,37 @@ export default function Applications() {
     }
   };
 
+  // Wait until login check is complete
+  if (isCheckingLogin) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-50">
+        <p className="text-lg font-semibold text-indigo-600">
+          Loading OpportunityHub...
+        </p>
+      </div>
+    );
+  }
+
   return (
     <main className="min-h-screen bg-slate-50 text-slate-800">
 
       {/* Navbar */}
-      <nav className="flex items-center justify-between bg-white px-8 py-5 shadow-sm">
+      <nav className="flex flex-wrap items-center justify-between gap-4 bg-white px-8 py-5 shadow-sm">
         <Link href="/" className="text-2xl font-bold text-indigo-600">
           OpportunityHub.
         </Link>
 
-        <div className="hidden gap-8 md:flex">
+        <div className="flex flex-wrap items-center gap-5">
           <Link href="/" className="text-slate-600 hover:text-indigo-600">
             Home
           </Link>
 
           <Link href="/explore" className="text-slate-600 hover:text-indigo-600">
             Explore
+          </Link>
+
+          <Link href="/dashboard" className="text-slate-600 hover:text-indigo-600">
+            Dashboard
           </Link>
 
           <Link href="/applications" className="font-medium text-indigo-600">
@@ -72,6 +109,17 @@ export default function Applications() {
           <Link href="/saved" className="text-slate-600 hover:text-indigo-600">
             Saved
           </Link>
+
+          <Link href="/profile" className="text-slate-600 hover:text-indigo-600">
+            My Profile
+          </Link>
+
+          <button
+            onClick={handleLogout}
+            className="rounded-lg border border-red-500 px-4 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-50"
+          >
+            Logout
+          </button>
         </div>
       </nav>
 
@@ -165,6 +213,14 @@ export default function Applications() {
                   <span>{item.type}</span>
                   <span>Deadline: {item.deadline}</span>
                 </div>
+
+                {/* View Details */}
+                <Link
+                  href={`/opportunity/${item.id}`}
+                  className="mt-5 block w-full rounded-lg border border-indigo-600 py-2 text-center font-semibold text-indigo-600 hover:bg-indigo-50"
+                >
+                  View Details
+                </Link>
 
                 {/* Update Status */}
                 <div className="mt-6">

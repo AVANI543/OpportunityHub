@@ -1,14 +1,18 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import opportunities from "../../data/opportunities";
 import { useOpportunities } from "../../context/OpportunityContext";
 
 export default function Explore() {
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [isCheckingLogin, setIsCheckingLogin] = useState(true);
+
+  const router = useRouter();
 
   const {
     savedOpportunities,
@@ -25,7 +29,36 @@ export default function Explore() {
     "Workshop",
   ];
 
-  // Search and filter opportunities
+  useEffect(() => {
+    const user = sessionStorage.getItem("opportunityHubUser");
+
+    if (!user) {
+      router.replace("/login");
+    } else {
+      setIsCheckingLogin(false);
+    }
+  }, [router]);
+
+  const handleLogout = () => {
+    sessionStorage.removeItem("opportunityHubUser");
+    router.replace("/login");
+  };
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+
+    const searchValue = params.get("search") || "";
+    const categoryValue = params.get("category") || "All";
+
+    setSearch(searchValue);
+
+    if (categories.includes(categoryValue)) {
+      setSelectedCategory(categoryValue);
+    } else {
+      setSelectedCategory("All");
+    }
+  }, []);
+
   const filteredOpportunities = opportunities.filter((item) => {
     const matchesSearch = (
       `${item.title} ${item.organization} ${item.category}`
@@ -40,16 +73,32 @@ export default function Explore() {
     return matchesSearch && matchesCategory;
   });
 
+  const clearFilters = () => {
+    setSearch("");
+    setSelectedCategory("All");
+    window.history.replaceState(null, "", "/explore");
+  };
+
+  if (isCheckingLogin) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-50">
+        <p className="text-lg font-semibold text-indigo-600">
+          Loading OpportunityHub...
+        </p>
+      </div>
+    );
+  }
+
   return (
     <main className="min-h-screen bg-slate-50 text-slate-800">
 
       {/* Navbar */}
-      <nav className="flex items-center justify-between bg-white px-8 py-5 shadow-sm">
+      <nav className="flex flex-wrap items-center justify-between gap-4 bg-white px-8 py-5 shadow-sm">
         <Link href="/" className="text-2xl font-bold text-indigo-600">
           OpportunityHub.
         </Link>
 
-        <div className="hidden gap-8 md:flex">
+        <div className="flex flex-wrap items-center gap-5">
           <Link href="/" className="text-slate-600 hover:text-indigo-600">
             Home
           </Link>
@@ -59,6 +108,13 @@ export default function Explore() {
             className="font-medium text-indigo-600"
           >
             Explore
+          </Link>
+
+          <Link
+            href="/dashboard"
+            className="text-slate-600 hover:text-indigo-600"
+          >
+            Dashboard
           </Link>
 
           <Link
@@ -74,6 +130,20 @@ export default function Explore() {
           >
             Saved
           </Link>
+
+          <Link
+            href="/profile"
+            className="text-slate-600 hover:text-indigo-600"
+          >
+            My Profile
+          </Link>
+
+          <button
+            onClick={handleLogout}
+            className="rounded-lg border border-red-500 px-4 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-50"
+          >
+            Logout
+          </button>
         </div>
       </nav>
 
@@ -124,6 +194,13 @@ export default function Explore() {
             </button>
           ))}
         </div>
+
+        <button
+          onClick={clearFilters}
+          className="mt-4 text-sm font-semibold text-indigo-600 hover:text-indigo-800"
+        >
+          Clear Filters
+        </button>
       </section>
 
       {/* Opportunity Count */}
@@ -144,6 +221,13 @@ export default function Explore() {
             <p className="mt-2 text-slate-500">
               Try a different search or category.
             </p>
+
+            <button
+              onClick={clearFilters}
+              className="mt-5 rounded-lg bg-indigo-600 px-5 py-2 text-white hover:bg-indigo-700"
+            >
+              Clear Filters
+            </button>
           </div>
         ) : (
           <div className="grid gap-6 md:grid-cols-2">
@@ -159,7 +243,6 @@ export default function Explore() {
                   key={item.id}
                   className="rounded-xl border border-slate-100 bg-white p-6 shadow-sm transition hover:shadow-md"
                 >
-                  {/* Category and Bookmark */}
                   <div className="mb-4 flex items-center justify-between">
                     <span
                       className={`rounded-full px-3 py-1 text-xs font-semibold ${item.color}`}
@@ -173,16 +256,13 @@ export default function Explore() {
                         isSaved ? "Remove bookmark" : "Save opportunity"
                       }
                       className={`text-2xl ${
-                        isSaved
-                          ? "text-indigo-600"
-                          : "text-slate-400"
+                        isSaved ? "text-indigo-600" : "text-slate-400"
                       } hover:text-indigo-600`}
                     >
                       {isSaved ? "♥" : "♡"}
                     </button>
                   </div>
 
-                  {/* Opportunity Details */}
                   <h3 className="text-xl font-bold">
                     {item.title}
                   </h3>
@@ -200,13 +280,19 @@ export default function Explore() {
                     <span>Deadline: {item.deadline}</span>
                   </div>
 
-                  {/* Add to Tracker */}
+                  <Link
+                    href={`/opportunity/${item.id}`}
+                    className="mt-6 block w-full rounded-lg border border-indigo-600 py-3 text-center font-semibold text-indigo-600 transition hover:bg-indigo-50"
+                  >
+                    View Details
+                  </Link>
+
                   <button
                     onClick={() =>
                       updateApplication(item.id, "Planning to Apply")
                     }
                     disabled={isAdded}
-                    className={`mt-6 w-full rounded-lg py-3 font-semibold transition ${
+                    className={`mt-3 w-full rounded-lg py-3 font-semibold transition ${
                       isAdded
                         ? "cursor-not-allowed bg-green-100 text-green-700"
                         : "bg-indigo-600 text-white hover:bg-indigo-700"

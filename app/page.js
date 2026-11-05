@@ -1,13 +1,17 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import opportunities from "../data/opportunities";
 import { useOpportunities } from "../context/OpportunityContext";
 
 export default function Home() {
   const [search, setSearch] = useState("");
+  const [isCheckingLogin, setIsCheckingLogin] = useState(true);
+
+  const router = useRouter();
 
   const {
     savedOpportunities,
@@ -15,6 +19,21 @@ export default function Home() {
     toggleSave,
     updateApplication,
   } = useOpportunities();
+
+  useEffect(() => {
+    const user = sessionStorage.getItem("opportunityHubUser");
+
+    if (!user) {
+      router.replace("/login");
+    } else {
+      setIsCheckingLogin(false);
+    }
+  }, [router]);
+
+  const handleLogout = () => {
+    sessionStorage.removeItem("opportunityHubUser");
+    router.replace("/login");
+  };
 
   const filteredOpportunities = opportunities.filter((item) =>
     `${item.title} ${item.organization} ${item.category}`
@@ -36,22 +55,36 @@ export default function Home() {
     Workshops: "Workshop",
   };
 
+  if (isCheckingLogin) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-50">
+        <p className="text-lg font-semibold text-indigo-600">
+          Loading OpportunityHub...
+        </p>
+      </div>
+    );
+  }
+
   return (
     <main className="min-h-screen bg-slate-50 text-slate-800">
 
       {/* Navbar */}
-      <nav className="flex items-center justify-between bg-white px-8 py-5 shadow-sm">
+      <nav className="flex flex-wrap items-center justify-between gap-4 bg-white px-8 py-5 shadow-sm">
         <Link href="/" className="text-2xl font-bold text-indigo-600">
           OpportunityHub.
         </Link>
 
-        <div className="hidden gap-8 md:flex">
+        <div className="flex flex-wrap items-center gap-5">
           <Link href="/" className="font-medium text-indigo-600">
             Home
           </Link>
 
           <Link href="/explore" className="text-slate-600 hover:text-indigo-600">
             Explore
+          </Link>
+
+          <Link href="/dashboard" className="text-slate-600 hover:text-indigo-600">
+            Dashboard
           </Link>
 
           <Link href="/applications" className="text-slate-600 hover:text-indigo-600">
@@ -63,9 +96,21 @@ export default function Home() {
           </Link>
         </div>
 
-        <button className="rounded-lg bg-indigo-600 px-5 py-2 text-white hover:bg-indigo-700">
-          My Profile
-        </button>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/profile"
+            className="rounded-lg bg-indigo-600 px-5 py-2 text-white hover:bg-indigo-700"
+          >
+            My Profile
+          </Link>
+
+          <button
+            onClick={handleLogout}
+            className="rounded-lg border border-red-500 px-5 py-2 font-medium text-red-600 transition hover:bg-red-50"
+          >
+            Logout
+          </button>
+        </div>
       </nav>
 
       {/* Hero Section */}
@@ -88,7 +133,7 @@ export default function Home() {
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            window.location.href = `/explore?search=${encodeURIComponent(search)}`;
+            router.push(`/explore?search=${encodeURIComponent(search)}`);
           }}
           className="mx-auto mt-8 flex max-w-xl gap-2 rounded-xl bg-white p-2 shadow-md"
         >
@@ -180,16 +225,13 @@ export default function Home() {
                       {item.category}
                     </span>
 
-                    {/* Bookmark Button */}
                     <button
                       onClick={() => toggleSave(item.id)}
                       aria-label={
                         isSaved ? "Remove bookmark" : "Save opportunity"
                       }
                       className={`text-xl ${
-                        isSaved
-                          ? "text-indigo-600"
-                          : "text-slate-400"
+                        isSaved ? "text-indigo-600" : "text-slate-400"
                       } hover:text-indigo-600`}
                     >
                       {isSaved ? "♥" : "♡"}
@@ -209,13 +251,19 @@ export default function Home() {
                     <span>Deadline: {item.deadline}</span>
                   </div>
 
-                  {/* Add to Tracker */}
+                  <Link
+                    href={`/opportunity/${item.id}`}
+                    className="mt-6 block w-full rounded-lg border border-indigo-600 py-2 text-center font-semibold text-indigo-600 transition hover:bg-indigo-600 hover:text-white"
+                  >
+                    View Details
+                  </Link>
+
                   <button
                     onClick={() =>
                       updateApplication(item.id, "Planning to Apply")
                     }
                     disabled={isAdded}
-                    className={`mt-6 w-full rounded-lg py-2 font-semibold transition ${
+                    className={`mt-3 w-full rounded-lg py-2 font-semibold transition ${
                       isAdded
                         ? "cursor-not-allowed bg-green-100 text-green-700"
                         : "border border-indigo-600 text-indigo-600 hover:bg-indigo-600 hover:text-white"
