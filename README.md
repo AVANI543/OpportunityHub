@@ -1,36 +1,139 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
-## Getting Started
+# OpportunityHub 
 
-First, run the development server:
+### Student Opportunity & Application Tracker
+
+OpportunityHub is a web-based platform designed to help college students discover, save, and manage various opportunities in one place.
+
+Students often find internships, hackathons, scholarships, workshops, and other opportunities through different websites and social media platforms. Keeping track of these opportunities, application links, and deadlines can become difficult.
+
+OpportunityHub aims to simplify this process by providing a centralized platform where students can explore opportunities and track their application progress.
+
+##  Features
+
+- **Login Page:** Simple demo login to access the platform.
+- **Home Page:** Get an overview of featured opportunities.
+- **Explore Opportunities:** Browse and search opportunities by category.
+- **Dashboard:** View a summary of saved opportunities, applications, and upcoming deadlines.
+- **Saved Opportunities:** Bookmark opportunities and access them later.
+- **Application Tracker:** Track application progress using different statuses.
+- **Opportunity Details:** View descriptions, eligibility, deadlines, and other information.
+- **My Profile:** Add and manage basic profile information.
+- **Data Persistence:** Save profile details, bookmarks, and application status using browser local storage.
+
+## Technologies Used
+
+- Next.js
+- React.js
+- JavaScript
+- Tailwind CSS
+- HTML
+- CSS
+- Browser Local Storage
+- Session Storage
+
+##  Project Structure
+
+```text
+opportunity-hub/
+│
+├── app/
+│   ├── dashboard/
+│   ├── explore/
+│   ├── applications/
+│   ├── saved/
+│   ├── login/
+│   ├── profile/
+│   ├── opportunity/
+│   ├── page.js
+│   ├── layout.js
+│   └── globals.css
+│
+├── components/
+├── context/
+│   └── OpportunityContext.js
+│
+├── data/
+│   └── opportunities.js
+│
+├── public/
+├── package.json
+└── README.md
+```
+
+##  Getting Started
+
+Follow these steps to run the project locally.
+
+### Prerequisites
+
+- Node.js
+- npm
+- Visual Studio Code (recommended)
+
+### Installation
+
+1. Clone the repository:
+
+```bash
+git clone https://github.com/AVANI543/OpportunityHub.git
+```
+
+2. Navigate to the project directory:
+
+```bash
+cd OpportunityHub
+```
+
+3. Install the dependencies:
+
+```bash
+npm install
+```
+
+4. Start the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+5. Open your browser and visit:
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+```text
+http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+##  Demo Login
 
-## Learn More
+The project currently uses a frontend-only demo login system.
 
-To learn more about Next.js, take a look at the following resources:
+- Enter a valid-looking email address.
+- Enter any non-empty password.
+- Access the platform after logging in.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+No actual password or authentication service is used.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+##  Project Limitations
 
-## Deploy on Vercel
+- This is a frontend-only project.
+- No backend or database is currently integrated.
+- Login is implemented for demonstration purposes only.
+- User data is stored locally in the browser.
+- Sample opportunity data is used for demonstration.
+- Application links in the sample data are placeholders.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+##  Future Enhancements
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Backend and database integration.
+- Secure user authentication.
+- Real-time opportunity updates.
+- Email notifications for upcoming deadlines.
+- Personalized opportunity recommendations.
+
+##  Team
+
+Developed as a college project by a team of two students.
+
+---
+
+**OpportunityHub: Discover opportunities. Stay organized. Track your progress.**
